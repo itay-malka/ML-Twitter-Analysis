@@ -73,11 +73,33 @@ The notebook expects `twitter_training.csv` and `twitter_validation.csv` to sit 
 
 ## What the notebook does
 
-1. **Load & explore** the training/validation CSVs (class distribution, missing values, duplicates).
-2. **Clean & vectorize** tweet text (lowercasing, URL/mention removal, `CountVectorizer`).
-3. **Train** a Multinomial Naive Bayes classifier.
-4. **Evaluate** on the validation set using accuracy and macro-average F1, plus a confusion matrix.
-5. Includes a **grid search + 5-fold cross-validation skeleton** for tuning `alpha` and vectorizer settings.
+The notebook is organised to mirror the assignment's sections one-to-one. Explanations are
+written in Hebrew (the language of the submission video); all code and comments are in English.
+
+| Section | Assignment part | Contents |
+|---|---|---|
+| 1 | Part 1 (5 pts) | Loads both provided CSVs unsplit, shows the first 5 rows of each, and profiles the class balance in train vs. test. |
+| 2 | Part 2 (35 pts) | Stateless `clean_tweet` normalisation (lower-casing, URL / @mention removal, letters-only filtering) followed by a stateful vectoriser fitted on the training set only. Demonstrated before/after on 3 train **and** 3 test examples. |
+| 3 | Part 3 (35 pts) | `MultinomialNaiveBayes` **implemented from scratch** — log-space arithmetic, Lidstone smoothing, and a single matrix product instead of a per-document loop — verified to machine precision against `sklearn.naive_bayes.MultinomialNB`. |
+| 6a | Part 6a (25 pts) | Cartesian grid search over `vectorizer` x `ngram_range` x `max_features` x `alpha` (32 permutations) wrapped in stratified 5-fold cross-validation, with the vectoriser refitted **inside** each fold and the CV run on our own implementation. All permutations tabulated; the winner reported separately. |
+| 4 | Part 4 (5 pts) | Rebuilds the winning configuration and retrains on the full training set. |
+| 5 | Part 5 (10 pts) | First 5 test predictions, macro-F1, per-class report, confusion matrix, plus a check of the score on seen vs. genuinely unseen test tweets that explains the gap against the CV estimate. |
+| 6c | Part 6c (10 pts) | Explainability: per-class log-likelihood ratios for the most characteristic terms, plus an exact per-term decomposition of individual predictions. |
+
+**Quality metric:** macro-average F1 (multi-class, no central class), as the assignment specifies.
+
+**Result:** macro-F1 = **0.9772** on the held-out test set (5-fold CV estimate on the training
+set: 0.9249). The single most influential grid axis was `max_features`: capping the vocabulary
+at 5,000 terms costs ~0.19 macro-F1 versus keeping it whole. The notebook also splits the test
+score by seen vs. genuinely unseen tweets and explains the gap against the CV estimate.
+
+## Runtime
+
+The whole notebook runs top to bottom in about a minute on a laptop — the grid search
+(32 configurations x 5 folds = 160 fits) is the slowest cell at roughly 35-60 seconds.
+
+The notebook is committed **with all outputs stored**, so it can be read and graded
+without being re-run.
 
 ## Troubleshooting
 
